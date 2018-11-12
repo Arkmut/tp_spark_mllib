@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'scala'
+}
+
+group 'fr.insa-lyon.5if'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.11'
+    compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.2'
+    compile group: 'org.apache.spark', name: 'spark-mllib_2.11', version: '2.4.0'
+}
+
+
+apply plugin: 'application'
+mainClassName = "Main"
