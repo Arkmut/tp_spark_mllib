@@ -7,6 +7,8 @@ import org.apache.spark.sql.SparkSession;
 import scala.io.Codec;
 import scala.io.Source;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,12 +44,14 @@ public class Main {
                 .fromURL(path, Codec.UTF8())
                 .mkString()
                 .split("\n");
-        ArrayList<RowGPS> rows = new ArrayList<>();
-        for(int i = 0;i<s.length;i++){
-            rows.add(RowGPS.fromCSVRow(s[i],";"));
+        try {
+            PrintWriter out = new PrintWriter("./csvData.csv");
+
+        out.print(s);
+        out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        session.log().warn(MessageFormat.format("DEBUG: CSV line count {0}", s.length));
-        Dataset<Row> dataset = session.createDataFrame(rows,RowGPS.class);
-        return dataset;
+       return session.sqlContext().read().format("com.databricks.spark.csv").option("header",true).load("./csvData.csv");
     }
 }
