@@ -8,6 +8,7 @@ import scala.io.Codec;
 import scala.io.Source;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -41,10 +42,12 @@ public class Main {
                 .fromURL(path, Codec.UTF8())
                 .mkString()
                 .split("\n");
-
+        ArrayList<RowGPS> rows = new ArrayList<>();
+        for(int i = 0;i<s.length;i++){
+            rows.add(RowGPS.fromCSVRow(s[i],";"));
+        }
         session.log().warn(MessageFormat.format("DEBUG: CSV line count {0}", s.length));
-
-        Dataset<String> dataset = session.createDataset(Arrays.asList(s), Encoders.STRING());
-        return session.read().csv(dataset);
+        Dataset<Row> dataset = session.createDataFrame(rows,RowGPS.class);
+        return dataset;
     }
 }
