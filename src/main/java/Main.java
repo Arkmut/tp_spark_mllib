@@ -1,3 +1,4 @@
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.sql.Dataset;
@@ -23,35 +24,21 @@ public class Main {
                 .getOrCreate();
 
         session.log().warn("DEBUG: Loading DATA");
-        Dataset<Row> rowDataset = loadData(session, args[0]);
+        JavaRDD<String> rowDataset = loadData(session);
 
         session.log().warn("DEBUG: Data loaded");
         KMean job = new KMean(session);
 
-        rowDataset.show();
+        //rowDataset.show();
         
-        job.run(rowDataset
-                .toJavaRDD()
+        /*job.run(rowDataset
                 .map((Function<Row, Vector>) row -> (Vector) row.get(0))
-        );
+        );*/
         session.log().warn("DEBUG: Job finished");
     }
 
-    public static Dataset<Row> loadData(SparkSession session, String path) {
-        session.log().warn(MessageFormat.format("DEBUG: {0}, {1}", session.logName(), path));
-
-        String[] s = Source
-                .fromURL(path, Codec.UTF8())
-                .mkString()
-                .split("\n");
-        try {
-            PrintWriter out = new PrintWriter("./csvData.csv");
-
-        out.print(s);
-        out.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-       return session.sqlContext().read().format("com.databricks.spark.csv").option("header",true).load("./csvData.csv");
+    public static JavaRDD<String> loadData(SparkSession session) {
+        JavaRDD<String> data= session.sparkContext().textFile("file:///home/embraser01/data/data.csv",1).toJavaRDD();
+        return data;
     }
 }
