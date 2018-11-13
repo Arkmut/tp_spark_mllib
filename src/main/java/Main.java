@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         SparkSession session = SparkSession.builder()
                 .appName("SparkSample")
-                .master("spark://DESKTOP-3EM4HH9:7077")
+                .master("spark://Spark-1.s0wsc52zzg5utp0cwcnetspzja.ax.internal.cloudapp.net:7077")
                 .getOrCreate();
 
         session.log().warn("DEBUG: Loading DATA");
