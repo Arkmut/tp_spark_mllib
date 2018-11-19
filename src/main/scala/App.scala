@@ -16,28 +16,36 @@ object App {
   def main(args: Array[String]) {
 
     //Create a SparkContext to initialize Spark
-    val conf = SparkSession.builder
+    val sc = SparkSession.builder
       .appName("SparkSample")
       .master("spark://Spark-1.s0wsc52zzg5utp0cwcnetspzja.ax.internal.cloudapp.net:7077")
       .getOrCreate
 
     // READ FILES
 
-    val dataFrame = conf.read
-      .option("delimiter", ";")
-      .csv(args.apply(0))
+    // Load and parse the data file
+    val train = sc.textFile("data/dota2Test.csv")
+    val parsedTrain = train.map { line =>
+      val parts = line.split(',').map(_.toDouble)
+      LabeledPoint(parts(0)*0.5+0.5, Vectors.dense(parts.tail).toSparse) // *0.5+0.5 to avoid negative values
+    }
+    val test = sc.textFile("data/dota2Test.csv")
+    val parsedTest = test.map { line =>
+      val parts = line.split(',').map(_.toDouble)
+      LabeledPoint(parts(0)*0.5+0.5, Vectors.dense(parts.tail).toSparse)
+    }
 
-    println("Here I am! " + dataFrame.count())
+    println("Here I am! " + parsedTrain.count())
 
 
-    //    // BUILD MODEL
-    //    val t0 = System.nanoTime()
-    //    var model = DecisionTree.train(dataFrame.toJavaRDD(), Classification, Gini, 20)
-    //    for (i <- 2 to nbIte) {
-    //      model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
-    //    }
-    //    val t1 = System.nanoTime()
-    //    println("Time for model : " + (((t1 - t0) / 1000000) / nbIte) + "ms")
+    // BUILD MODEL
+    val t0 = System.nanoTime()
+    var model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
+    for(i <- 2 to nbIte) {
+      model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
+    }
+    val t1 = System.nanoTime()
+    println("Time for model : " + (((t1 - t0)/1000000)/nbIte) + "ms")
 
     /*
         // CHECK PREDICTION
@@ -51,22 +59,23 @@ object App {
     */
 
     // Evaluate model on training examples and compute training error
-    /*
-        val t2 = System.nanoTime()
-        var valuesAndPreds = parsedTest.map { point =>
-          val prediction = model.predict(point.features)
-          (point.label, prediction)
-        }
-        for (i <- 2 to nbIte) {
-          valuesAndPreds = parsedTest.map { point =>
-            val prediction = model.predict(point.features)
-            (point.label, prediction)
-          }
-        }
-        val t3 = System.nanoTime()
-        println("Time for tests : " + (((t3 - t2) / 1000000) / nbIte) + "ms")
 
-        val MSE = valuesAndPreds.map { case (v, p) => math.pow((v - p), 2) }.mean()
-        println("training Mean Squared Error = " + MSE)*/
+    val t2 = System.nanoTime()
+    var valuesAndPreds = parsedTest.map { point =>
+      val prediction = model.predict(point.features)
+      (point.label, prediction)
+    }
+    for(i <- 2 to nbIte) {
+      valuesAndPreds = parsedTest.map { point =>
+        val prediction = model.predict(point.features)
+        (point.label, prediction)
+      }
+    }
+    val t3 = System.nanoTime()
+    println("Time for tests : " + (((t3 - t2)/1000000)/nbIte) + "ms")
+
+    val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+    println("training Mean Squared Error = " + MSE)
+
   }
 }
