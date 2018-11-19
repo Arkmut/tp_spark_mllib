@@ -1,6 +1,7 @@
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
@@ -31,14 +32,22 @@ public class Main {
 
         //rowDataset.show();
         
-        /*job.run(rowDataset
-                .map((Function<Row, Vector>) row -> (Vector) row.get(0))
-        );*/
+        job.run(rowDataset
+                .map((Function<String, Vector>) string -> Vectors.dense(convertToDouble(string.split(","))))
+        );
         session.log().warn("DEBUG: Job finished");
     }
 
     public static JavaRDD<String> loadData(SparkSession session) {
         JavaRDD<String> data= session.sparkContext().textFile("file:///home/embraser01/data/data.csv",1).toJavaRDD();
+
         return data;
+    }
+    public static double[] convertToDouble(String[] list){
+        double[] listd=new double[list.length];
+        for(int i = 0;i<list.length;i++){
+            listd[i]=Double.parseDouble(list[i]);
+        }
+        return listd;
     }
 }
