@@ -24,7 +24,7 @@ object App {
     // READ FILES
 
     val dataFrame = conf.read
-      .option("delimiter", ';')
+      .option("delimiter", ";")
       .csv(args.apply(0))
 
     println("Here I am! " + dataFrame.count())
