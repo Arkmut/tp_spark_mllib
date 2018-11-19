@@ -22,4 +22,4 @@ dependencies {
 
 
 apply plugin: 'application'
-mainClassName = "Main"
+mainClassName = "App"
