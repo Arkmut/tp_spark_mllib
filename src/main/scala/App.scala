@@ -1,3 +1,9 @@
+import org.apache.spark.SparkContext
+import org.apache.spark.mllib.tree.DecisionTree
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.tree.configuration.Algo._
+import org.apache.spark.mllib.tree.impurity.Gini
 import org.apache.spark.sql.SparkSession
 
 object App {
@@ -41,6 +47,7 @@ object App {
     // BUILD MODEL
     val t0 = System.nanoTime()
     var model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
+    val nbIte = args.apply(0).toInt
     for(i <- 2 to nbIte) {
       model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
     }
