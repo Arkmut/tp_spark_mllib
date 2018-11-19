@@ -16,13 +16,13 @@ object App {
   def main(args: Array[String]) {
 
     //Create a SparkContext to initialize Spark
-    val sc = SparkSession.builder
+    val session = SparkSession.builder
       .appName("SparkSample")
       .master("spark://Spark-1.s0wsc52zzg5utp0cwcnetspzja.ax.internal.cloudapp.net:7077")
       .getOrCreate
 
     // READ FILES
-
+    val sc = session.sparkContext;
     // Load and parse the data file
     val train = sc.textFile("data/dota2Test.csv")
     val parsedTrain = train.map { line =>
