@@ -13,7 +13,40 @@ object App {
   def test(): Unit = {
     println("Hello, world!")
   }
+	def demo(): Unit = {
+	    val file = "dota2Train.csv";
 
+
+   
+   
+      // READ FILE
+      // Load and parse the data file
+      val train = sc.textFile("data/"+file,nbPartitions)
+      val parsedTrain = train.map { line =>
+        val parts = line.split(',').map(_.toDouble)
+        LabeledPoint(parts(0)*0.5+0.5, Vectors.dense(parts.tail).toSparse) // *0.5+0.5 to avoid negative values
+      }
+      val test = sc.textFile("data/dota2TestDemo.csv")
+      val parsedTest = test.map { line =>
+        val parts = line.split(',').map(_.toDouble)
+        LabeledPoint(parts(0)*0.5+0.5, Vectors.dense(parts.tail).toSparse)
+      }
+
+     
+		model = DecisionTree.train(parsedTrain, Classification, Gini, 20)
+      
+      // Evaluate model on training examples and compute training error
+
+      // One empty training to warn up
+      var valuesAndPreds = parsedTest.map { point =>
+          val prediction = model.predict(point.features)
+          (point.label, prediction)
+        }
+
+      
+      val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2)}.mean()
+      println(MSE))
+  }
   def exoMulti(nbIte: Int): Unit = {
     val nbCores = Array(1,2,3,4,8,16,32)
     val file = "dota2Train.csv"
