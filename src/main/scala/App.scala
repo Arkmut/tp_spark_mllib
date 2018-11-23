@@ -45,7 +45,7 @@ object App {
 
       
       val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2)}.mean()
-      println(MSE))
+      println(MSE)
   }
   def exoMulti(nbIte: Int): Unit = {
     val nbCores = Array(1,2,3,4,8,16,32)
