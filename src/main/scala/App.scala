@@ -19,7 +19,7 @@ object App {
 
       // READ FILE
       // Load and parse the data file
-      val train = sc.textFile("data/"+file,nbPartitions)
+      val train = sc.textFile("data/"+file,2)
       val parsedTrain = train.map { line =>
         val parts = line.split(',').map(_.toDouble)
         LabeledPoint(parts(0)*0.5+0.5, Vectors.dense(parts.tail).toSparse) // *0.5+0.5 to avoid negative values
@@ -38,8 +38,7 @@ object App {
       
   
       print( "(" + parsedTrain.count() + " / " + parsedTest.count() + "), ")
-      print( ((t1 - t0)/1000000/nbIte) + "ms, ")
-      print( ((t3 - t2)/1000000/nbIte) + "ms, ")
+     
       val MSE = valuesAndPreds.map{ case(v, p) => math.pow((v - p), 2)}.mean()
       println(MSE)
     
