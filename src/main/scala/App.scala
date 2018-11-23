@@ -35,7 +35,10 @@ object App {
 
       
 
-      
+      var valuesAndPreds = parsedTest.map { point =>
+          val prediction = model.predict(point.features)
+          (point.label, prediction)
+        }
   
       print( "(" + parsedTrain.count() + " / " + parsedTest.count() + "), ")
      
